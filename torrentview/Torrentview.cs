@@ -10,11 +10,12 @@ namespace torrentview
         static void Main(string[] args)
         {
             Torrentview torrentview = new Torrentview();
-            torrentview.MakeXML();
+            torrentview.domain = GetDomain();
         }
 
-        private void MakeXML()
+        private static string GetDomain()
         {
+            return "";
         }
     }
 }
