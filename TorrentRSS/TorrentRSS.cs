@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
 
 namespace TorrentRSS
 {
@@ -8,61 +12,55 @@ namespace TorrentRSS
     {
         static void Main(string[] args)
         {
-            GetContents("torrentview", "drama", 1);
+            GetContents("torrentwiz", "me", 38, "drama", 1);
+            //GetContents("torrentview", "com", 48, "drama", 1);
+
+            //GetContents("torrentlee", "me", 28, "mov", 1);
+            //GetContents("torrentdia", "com", 100, "torrent_drama", 1);
         }
 
-        static void GetContents(string site, string board, int page)
+        static async Task GetContents(string site, string tld, int count, string board, int page)
         {
             TorrentRSS torrentRss = new TorrentRSS();
-            string domain;
-            string html = null;
-            switch (site)
+            string[] contents = new string[] {"", ""};
+            string domain = torrentRss.GetDomain(site, tld, count);
+            string html = torrentRss.GetHtml(domain + "/bbs/board.php?bo_table=" + board + "&page=" + page).Trim();
+            Regex urlRegex = new Regex("<div class=\"wr-subject\">\n<a href=\"https://(.+)\" class=\"item-subject\">");
+            Regex subjectRegex = new Regex("<h1 class=\"panel-title\">\n(.+) </h1>");
+            Match subjectMatch;
+            Regex magnetRegex = new Regex("<a href=\"magnet:.xt=urn:btih:(.+)\"");
+            Match magnetMatch;
+            MatchCollection matchCollection = urlRegex.Matches(html);
+            foreach (Match match in matchCollection)
             {
-                case "torrentview":
-                    domain = torrentRss.GetDomain("torrentview", "com");
-                    html = torrentRss.GetHtml(domain);
-                    break;
-                case "torrentsee":
-                    domain = torrentRss.GetDomain("torrentsee", "com");
-                    html = torrentRss.GetHtml(domain);
-                    break;
-                case "torrentlee":
-                    domain = torrentRss.GetDomain("torrentlee", "me");
-                    html = torrentRss.GetHtml(domain);
-                    break;
-                case "torrentwiz":
-                    domain = torrentRss.GetDomain("torrentwiz", "me");
-                    html = torrentRss.GetHtml(domain);
-                    break;
-                case "torrentdia":
-                    domain = torrentRss.GetDomain("torrentdia", "com");
-                    html = torrentRss.GetHtml(domain);
-                    break;
+                string url = match.Value;
+                url = Regex.Replace(url, "\" class=\"item-subject\">", "");
+                url = Regex.Replace(url, "amp;", "");
+                url = Regex.Replace(url, "<div class=\"wr-subject\">\n<a href=\"", "");
+                url = Regex.Replace(url, "&page(.+)", "");
+
+                string contentHtml = torrentRss.GetHtml(url).Trim();
+                subjectMatch = subjectRegex.Match(contentHtml);
+                magnetMatch = magnetRegex.Match(contentHtml);
+
+                string subject = subjectMatch.Value;
+                subject = Regex.Replace(subject, "<h1 class=\"panel-title\">\n", "");
+                subject = Regex.Replace(subject, " </h1>", "");
+                Console.WriteLine(subject);
+
+                string magnet = magnetMatch.Value;
+                magnet = Regex.Replace(magnet, "<a href=\"", "");
+                magnet = Regex.Replace(magnet, "\" target=\"_self\"", "");
+                Console.WriteLine(magnet);
+
+                Console.WriteLine(url);
             }
-
-            Console.WriteLine(html);
         }
 
-
-        string GetHtml(string Url)
+        string GetDomain(string domain, string tld, int count)
         {
-            HttpWebRequest httpWebRequest = (HttpWebRequest) WebRequest.Create(Url);
-            httpWebRequest.Method = "GET";
-            WebResponse webResponse = httpWebRequest.GetResponse();
-            StreamReader streamReader = new StreamReader(webResponse.GetResponseStream(), System.Text.Encoding.UTF8);
-            string result = streamReader.ReadToEnd();
-            streamReader.Close();
-            webResponse.Close();
-            Console.WriteLine(result);
-            return result;
-        }
-
-        string GetDomain(string domain, string tld) //tld = top level domain
-        {
-            int count = 200;
             while (true)
             {
-                //Console.WriteLine("http://www." + domain + i + "."+tld);
                 try
                 {
                     HttpWebRequest request =
@@ -71,7 +69,7 @@ namespace TorrentRSS
                     HttpWebResponse response = (HttpWebResponse) request.GetResponse();
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        Console.WriteLine("http://www." + domain + count + "." + tld);
+                        //Console.WriteLine("http://www." + domain + count + "." + tld);
                         return "http://www." + domain + count + "." + tld;
                     }
                 }
@@ -84,6 +82,18 @@ namespace TorrentRSS
                     count--;
                 }
             }
+        }
+
+        string GetHtml(string Url)
+        {
+            HttpWebRequest httpWebRequest = (HttpWebRequest) WebRequest.Create(Url);
+            httpWebRequest.Method = "GET";
+            WebResponse webResponse = httpWebRequest.GetResponse();
+            StreamReader streamReader = new StreamReader(webResponse.GetResponseStream(), System.Text.Encoding.UTF8);
+            string html = streamReader.ReadToEnd();
+            streamReader.Close();
+            webResponse.Close();
+            return html;
         }
     }
 }
