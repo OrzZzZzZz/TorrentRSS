@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
 
 namespace TorrentRSS
 {
-    class TorrentRSS
+    class TorrentRss
     {
         static void Main(string[] args)
         {
@@ -21,15 +18,12 @@ namespace TorrentRSS
 
         static void GetContents(string site, string tld, int count, string board, int page)
         {
-            TorrentRSS torrentRss = new TorrentRSS();
-            string[] contents = new string[] {"", ""};
+            TorrentRss torrentRss = new TorrentRss();
             string domain = torrentRss.GetDomain(site, tld, count);
             string html = torrentRss.GetHtml(domain + "/bbs/board.php?bo_table=" + board + "&page=" + page).Trim();
             Regex urlRegex = new Regex("<div class=\"wr-subject\">\n<a href=\"https://(.+)\" class=\"item-subject\">");
             Regex subjectRegex = new Regex("<h1 class=\"panel-title\">\n(.+) </h1>");
-            Match subjectMatch;
             Regex magnetRegex = new Regex("<a href=\"magnet:.xt=urn:btih:(.+)\"");
-            Match magnetMatch;
             MatchCollection matchCollection = urlRegex.Matches(html);
             foreach (Match match in matchCollection)
             {
@@ -40,8 +34,8 @@ namespace TorrentRSS
                 url = Regex.Replace(url, "&page(.+)", "");
 
                 string contentHtml = torrentRss.GetHtml(url).Trim();
-                subjectMatch = subjectRegex.Match(contentHtml);
-                magnetMatch = magnetRegex.Match(contentHtml);
+                var subjectMatch = subjectRegex.Match(contentHtml);
+                var magnetMatch = magnetRegex.Match(contentHtml);
 
                 string subject = subjectMatch.Value;
                 subject = Regex.Replace(subject, "<h1 class=\"panel-title\">\n", "");
@@ -69,7 +63,6 @@ namespace TorrentRSS
                     HttpWebResponse response = (HttpWebResponse) request.GetResponse();
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        //Console.WriteLine("http://www." + domain + count + "." + tld);
                         return "http://www." + domain + count + "." + tld;
                     }
                 }
@@ -84,16 +77,15 @@ namespace TorrentRSS
             }
         }
 
-        string GetHtml(string Url)
+        string GetHtml(string url)
         {
-            HttpWebRequest httpWebRequest = (HttpWebRequest) WebRequest.Create(Url);
-            httpWebRequest.Method = "GET";
-            WebResponse webResponse = httpWebRequest.GetResponse();
-            StreamReader streamReader = new StreamReader(webResponse.GetResponseStream(), System.Text.Encoding.UTF8);
-            string html = streamReader.ReadToEnd();
-            streamReader.Close();
-            webResponse.Close();
-            return html;
+            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
+            request.Method = "GET";
+            request.Timeout = 10 * 1000; // 30초
+            using HttpWebResponse response = (HttpWebResponse) request.GetResponse();
+            Stream respStream = response.GetResponseStream();
+            using StreamReader streamReader = new StreamReader(respStream);
+            return streamReader.ReadToEnd();
         }
     }
 }
