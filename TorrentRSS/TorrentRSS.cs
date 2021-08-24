@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -42,6 +43,7 @@ namespace TorrentRSS
                 string subject = subjectMatch.Value;
                 subject = Regex.Replace(subject, "<h1 class=\"panel-title\">\n", "");
                 subject = Regex.Replace(subject, " </h1>", "");
+                subject = Regex.Replace(subject, ".mp4", "");
                 Console.WriteLine(subject);
 
                 string magnet = magnetMatch.Value;
@@ -69,6 +71,7 @@ namespace TorrentRSS
                 }
                 catch (Exception e)
                 {
+                    Debug.WriteLine(e);
                     continue;
                 }
                 finally
