@@ -9,8 +9,9 @@ namespace TorrentRSS
     {
         static void Main(string[] args)
         {
-            GetContents("torrentwiz", "me", 38, "drama", 1);
-            //GetContents("torrentview", "com", 48, "drama", 1);
+            //GetContents("torrentwiz", "me", 38, "drama", 1);
+            //GetContents("torrentwiz", "me", 38, "drama", 1);
+            GetContents("torrentview", "com", 48, "drama", 1);
             //GetContents("torrentlee", "me", 28, "mov", 1);
             //GetContents("torrentdia", "com", 100, "torrent_drama", 1);
         }
@@ -23,10 +24,10 @@ namespace TorrentRSS
             Regex urlRegex = new Regex("<div class=\"wr-subject\">\n<a href=\"https://(.+)\" class=\"item-subject\">");
             Regex subjectRegex = new Regex("<h1 class=\"panel-title\">\n(.+) </h1>");
             Regex magnetRegex = new Regex("<a href=\"magnet:.xt=urn:btih:(.+)\"");
-            MatchCollection matchCollection = urlRegex.Matches(html);
-            foreach (Match match in matchCollection)
+            MatchCollection urlCollection = urlRegex.Matches(html);
+            foreach (Match urlMatch in urlCollection)
             {
-                string url = match.Value;
+                string url = urlMatch.Value;
                 url = Regex.Replace(url, "\" class=\"item-subject\">", "");
                 url = Regex.Replace(url, "amp;", "");
                 url = Regex.Replace(url, "<div class=\"wr-subject\">\n<a href=\"", "");
@@ -57,7 +58,7 @@ namespace TorrentRSS
                 try
                 {
                     HttpWebRequest request =
-                        (HttpWebRequest) WebRequest.Create("http://www." + domain + count + "." + tld);
+                        (HttpWebRequest) WebRequest.Create("http://" + domain + count + "." + tld);
                     request.Method = "GET";
                     HttpWebResponse response = (HttpWebResponse) request.GetResponse();
                     if (response.StatusCode == HttpStatusCode.OK)
