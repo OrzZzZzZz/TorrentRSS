@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace TorrentRSS
 {
@@ -9,10 +10,12 @@ namespace TorrentRSS
     {
         static void Main(string[] args)
         {
-            //GetContents("torrentwiz", "me", 38, "drama", 1);
-            //GetContents("torrentview", "com", 48, "drama", 1);
-            GetContents("torrentlee", "me", 28, "drama", 1);
-            //GetContents("torrentdia", "com", 100, "torrent_drama", 1);
+            Thread torrentwiz = new Thread(() => GetContents("torrentwiz", "me", 38, "drama", 1));
+            torrentwiz.Start();
+            Thread torrentlee = new Thread(() => GetContents("torrentlee", "me", 28, "drama", 1));
+            torrentlee.Start();
+            Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "drama", 1));
+            torrentview.Start();
         }
 
         static void GetContents(string site, string tld, int count, string board, int page)
