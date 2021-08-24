@@ -10,9 +10,8 @@ namespace TorrentRSS
         static void Main(string[] args)
         {
             //GetContents("torrentwiz", "me", 38, "drama", 1);
-            //GetContents("torrentwiz", "me", 38, "drama", 1);
-            GetContents("torrentview", "com", 48, "drama", 1);
-            //GetContents("torrentlee", "me", 28, "mov", 1);
+            //GetContents("torrentview", "com", 48, "drama", 1);
+            GetContents("torrentlee", "me", 28, "drama", 1);
             //GetContents("torrentdia", "com", 100, "torrent_drama", 1);
         }
 
@@ -57,8 +56,7 @@ namespace TorrentRSS
             {
                 try
                 {
-                    HttpWebRequest request =
-                        (HttpWebRequest) WebRequest.Create("http://" + domain + count + "." + tld);
+                    HttpWebRequest request = (HttpWebRequest) WebRequest.Create("http://" + domain + count + "." + tld);
                     request.Method = "GET";
                     HttpWebResponse response = (HttpWebResponse) request.GetResponse();
                     if (response.StatusCode == HttpStatusCode.OK)
