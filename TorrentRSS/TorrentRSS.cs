@@ -31,13 +31,10 @@ namespace TorrentRSS
             Regex subjectRegex = new Regex("<h1 class=\"panel-title\">\n(.+) </h1>");
             Regex magnetRegex = new Regex("<a href=\"magnet:.xt=urn:btih:(.+)\"");
             MatchCollection urlCollection = urlRegex.Matches(html);
-            CreateXML();
-            string url = null;
-            string subject = null;
-            string magnet = null;
+
             foreach (Match urlMatch in urlCollection)
             {
-                url = urlMatch.Value;
+                string url = urlMatch.Value;
                 url = Regex.Replace(url, "\" class=\"item-subject\">", "");
                 url = Regex.Replace(url, "amp;", "");
                 url = Regex.Replace(url, "<div class=\"wr-subject\">\n<a href=\"", "");
@@ -47,12 +44,12 @@ namespace TorrentRSS
                 var subjectMatch = subjectRegex.Match(contentHtml);
                 var magnetMatch = magnetRegex.Match(contentHtml);
 
-                subject = subjectMatch.Value;
+                string subject = subjectMatch.Value;
                 subject = Regex.Replace(subject, "<h1 class=\"panel-title\">\n", "");
                 subject = Regex.Replace(subject, " </h1>", "");
                 subject = Regex.Replace(subject, ".mp4", "");
 
-                magnet = magnetMatch.Value;
+                string magnet = magnetMatch.Value;
                 magnet = Regex.Replace(magnet, "<a href=\"", "");
                 magnet = Regex.Replace(magnet, "\" target=\"_self\"", "");
 
@@ -60,24 +57,31 @@ namespace TorrentRSS
                 Console.WriteLine(magnet);
                 Console.WriteLine(url);
 
-                AddXML(subject, magnet, url);
+                AddXML(subject, magnet, url, board);
             }
         }
 
-        private static void CreateXML()
+        static void CreateXML(string file)
         {
             XmlDocument xmlDocument = new XmlDocument();
             XmlNode rss = xmlDocument.CreateElement("rss");
             xmlDocument.AppendChild(rss);
             XmlNode channel = xmlDocument.CreateElement("channel");
             rss.AppendChild(channel);
-            xmlDocument.Save("..\\..\\..\\TorrentRSS.xml");
+            xmlDocument.Save(file);
         }
 
-        private static void AddXML(string s, string m, string u)
+        static void AddXML(string s, string m, string u, string board)
         {
+            string file = "..\\..\\..\\TorrentRSS.xml";
+            FileInfo fileInfo = new FileInfo(file);
+            if (!fileInfo.Exists)
+            {
+                CreateXML(file);
+            }
+
             XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load("..\\..\\..\\TorrentRSS.xml");
+            xmlDocument.Load(file);
             XmlNode channel = xmlDocument.SelectSingleNode("rss/channel");
             XmlNode item = xmlDocument.CreateElement("item");
             channel.AppendChild(item);
@@ -91,11 +95,11 @@ namespace TorrentRSS
             enclosure.Attributes.Append(url);
             XmlAttribute type = xmlDocument.CreateAttribute("type");
             enclosure.Attributes.Append(type);
-            title.InnerText = s;
+            title.InnerText = "[" + board + "] " + s;
             link.InnerText = u;
             url.Value = m;
             type.Value = "application/x-bittorrent";
-            xmlDocument.Save("..\\..\\..\\TorrentRSS.xml");
+            xmlDocument.Save(file);
         }
 
         string GetDomain(string domain, string tld, int count)
