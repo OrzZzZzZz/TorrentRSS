@@ -17,8 +17,8 @@ namespace TorrentRSS
             Thread torrentwiz = new Thread(() => GetContents("torrentwiz", "me", 38, "drama", 1));
             Thread torrentlee = new Thread(() => GetContents("torrentlee", "me", 28, "drama", 1));
             Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "drama", 1));
-            // torrentwiz.Start();
-            torrentlee.Start();
+            torrentwiz.Start();
+            // torrentlee.Start();
             // torrentview.Start();
         }
 
@@ -31,8 +31,7 @@ namespace TorrentRSS
             Regex subjectRegex = new Regex("<h1 class=\"panel-title\">\n(.+) </h1>");
             Regex magnetRegex = new Regex("<a href=\"magnet:.xt=urn:btih:(.+)\"");
             MatchCollection urlCollection = urlRegex.Matches(html);
-            //Dictionary<string, string[]> contents = new Dictionary<string, string[]>();
-            MakeXml();
+            CreateXML();
             string url = null;
             string subject = null;
             string magnet = null;
@@ -52,20 +51,20 @@ namespace TorrentRSS
                 subject = Regex.Replace(subject, "<h1 class=\"panel-title\">\n", "");
                 subject = Regex.Replace(subject, " </h1>", "");
                 subject = Regex.Replace(subject, ".mp4", "");
-                // Console.WriteLine(subject);
 
                 magnet = magnetMatch.Value;
                 magnet = Regex.Replace(magnet, "<a href=\"", "");
                 magnet = Regex.Replace(magnet, "\" target=\"_self\"", "");
-                // Console.WriteLine(magnet);
 
-                // Console.WriteLine(url);
-                // contents.Add(magnet, new string[] {subject, url});
-                AddXml(subject, magnet, url);
+                Console.WriteLine(subject);
+                Console.WriteLine(magnet);
+                Console.WriteLine(url);
+
+                AddXML(subject, magnet, url);
             }
         }
 
-        private static void MakeXml()
+        private static void CreateXML()
         {
             XmlDocument xmlDocument = new XmlDocument();
             XmlNode rss = xmlDocument.CreateElement("rss");
@@ -73,10 +72,9 @@ namespace TorrentRSS
             XmlNode channel = xmlDocument.CreateElement("channel");
             rss.AppendChild(channel);
             xmlDocument.Save("..\\..\\..\\TorrentRSS.xml");
-            //data.Clear();
         }
 
-        private static void AddXml(string s, string m, string u)
+        private static void AddXML(string s, string m, string u)
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load("..\\..\\..\\TorrentRSS.xml");
@@ -100,40 +98,6 @@ namespace TorrentRSS
             xmlDocument.Save("..\\..\\..\\TorrentRSS.xml");
         }
 
-        /*
-        private static void MakeXML(Dictionary<string, string[]> contents)
-        {
-            var sts = new XmlWriterSettings()
-            {
-                Indent = true,
-            };
-            using var xmlWriter = XmlWriter.Create("TorrentRSS.xml", sts);
-            xmlWriter.WriteStartDocument();
-            xmlWriter.WriteStartElement("rss");
-            xmlWriter.WriteStartElement("channel");
-            foreach (var content in contents)
-            {
-                Console.WriteLine(content.Value[0]);
-                xmlWriter.WriteStartElement("item");
-                xmlWriter.WriteStartElement("title");
-                xmlWriter.WriteString(content.Value[0]);
-                xmlWriter.WriteEndElement(); // title
-                Console.WriteLine(content.Value[1]);
-                xmlWriter.WriteStartElement("link");
-                xmlWriter.WriteString(content.Value[1]);
-                xmlWriter.WriteEndElement(); // link
-                Console.WriteLine(content.Key);
-                xmlWriter.WriteStartElement("enclosure");
-                xmlWriter.WriteAttributeString("url", content.Key);
-                xmlWriter.WriteEndElement(); // enclosure
-                xmlWriter.WriteEndElement(); // item
-            }
-
-            xmlWriter.WriteEndElement(); // channel
-            xmlWriter.WriteEndElement(); // rss
-            xmlWriter.WriteEndDocument();
-        }
-        */
         string GetDomain(string domain, string tld, int count)
         {
             while (true)
