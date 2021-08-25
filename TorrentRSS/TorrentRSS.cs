@@ -15,8 +15,8 @@ namespace TorrentRSS
             Thread torrentlee = new Thread(() => GetContents("torrentlee", "me", 28, "drama", 1));
             Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "drama", 1));
             torrentwiz.Start();
-            torrentlee.Start();
-            torrentview.Start();
+            // torrentlee.Start();
+            // torrentview.Start();
         }
 
         static void GetContents(string site, string tld, int count, string board, int page)
@@ -83,13 +83,8 @@ namespace TorrentRSS
 
         string GetHtml(string url)
         {
-            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
-            request.Method = "GET";
-            request.Timeout = 10 * 1000; // 30초
-            using HttpWebResponse response = (HttpWebResponse) request.GetResponse();
-            Stream respStream = response.GetResponseStream();
-            using StreamReader streamReader = new StreamReader(respStream);
-            return streamReader.ReadToEnd();
+            using var client = new WebClient();
+            return client.DownloadString(url);
         }
     }
 }
