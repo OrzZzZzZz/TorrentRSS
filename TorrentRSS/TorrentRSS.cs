@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace TorrentRSS
@@ -16,10 +17,10 @@ namespace TorrentRSS
         {
             Thread torrentwiz = new Thread(() => GetContents("torrentwiz", "me", 38, "tv", 1));
             Thread torrentlee = new Thread(() => GetContents("torrentlee", "me", 28, "drama", 1));
-            Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "drama", 1));
+            Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "enter", 1));
             torrentwiz.Start();
-            // torrentlee.Start();
-            // torrentview.Start();
+            torrentlee.Start();
+            torrentview.Start();
         }
 
         static void GetContents(string site, string tld, int count, string board, int page)
@@ -71,7 +72,7 @@ namespace TorrentRSS
             xmlDocument.Save(file);
         }
 
-        static void AddXML(string s, string m, string u, string board)
+        static async Task AddXML(string s, string m, string u, string board)
         {
             string file = "..\\..\\..\\TorrentRSS.xml";
             FileInfo fileInfo = new FileInfo(file);
@@ -95,11 +96,12 @@ namespace TorrentRSS
             enclosure.Attributes.Append(url);
             XmlAttribute type = xmlDocument.CreateAttribute("type");
             enclosure.Attributes.Append(type);
-            title.InnerText = "[" + board + "] " + s;
+            title.InnerText = s;
             link.InnerText = u;
             url.Value = m;
             type.Value = "application/x-bittorrent";
             xmlDocument.Save(file);
+            Thread.Sleep(1);
         }
 
         string GetDomain(string domain, string tld, int count)
