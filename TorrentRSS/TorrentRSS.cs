@@ -14,7 +14,7 @@ namespace TorrentRSS
     {
         static void Main(string[] args)
         {
-            Thread torrentwiz = new Thread(() => GetContents("torrentwiz", "me", 38, "drama", 1));
+            Thread torrentwiz = new Thread(() => GetContents("torrentwiz", "me", 38, "enter", 1));
             Thread torrentlee = new Thread(() => GetContents("torrentlee", "me", 28, "drama", 1));
             Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "drama", 1));
             torrentwiz.Start();
