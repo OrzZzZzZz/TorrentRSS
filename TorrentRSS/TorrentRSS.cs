@@ -15,12 +15,15 @@ namespace TorrentRSS
     {
         static void Main(string[] args)
         {
-            Thread torrentwiz = new Thread(() => GetContents("torrentwiz", "me", 38, "tv", 1));
-            Thread torrentlee = new Thread(() => GetContents("torrentlee", "me", 28, "drama", 1));
-            Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "enter", 1));
-            torrentwiz.Start();
-            torrentlee.Start();
-            torrentview.Start();
+            GetContents("torrentwiz", "me", 38, "tv", 1);
+            GetContents("torrentlee", "me", 28, "drama", 1);
+            GetContents("torrentview", "com", 48, "enter", 1);
+            // Thread torrentwiz = new Thread(() => GetContents("torrentwiz", "me", 38, "tv", 1));
+            // Thread torrentlee = new Thread(() => GetContents("torrentlee", "me", 28, "drama", 1));
+            // Thread torrentview = new Thread(() => GetContents("torrentview", "com", 48, "enter", 1));
+            // torrentwiz.Start();
+            // torrentlee.Start();
+            // torrentview.Start();
         }
 
         static void GetContents(string site, string tld, int count, string board, int page)
@@ -64,6 +67,7 @@ namespace TorrentRSS
 
         static void CreateXML(string file)
         {
+            File.Delete(file);
             XmlDocument xmlDocument = new XmlDocument();
             XmlNode rss = xmlDocument.CreateElement("rss");
             xmlDocument.AppendChild(rss);
@@ -74,13 +78,8 @@ namespace TorrentRSS
 
         static void AddXML(string s, string m, string u, string board)
         {
-            string file = "..\\..\\..\\TorrentRSS.xml";
-            FileInfo fileInfo = new FileInfo(file);
-            if (!fileInfo.Exists)
-            {
-                CreateXML(file);
-            }
-
+            var file = "..\\..\\..\\TorrentRSS.xml";
+            // CreateXML(file);
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(file);
             XmlNode channel = xmlDocument.SelectSingleNode("rss/channel");
@@ -101,7 +100,6 @@ namespace TorrentRSS
             url.Value = m;
             type.Value = "application/x-bittorrent";
             xmlDocument.Save(file);
-            Thread.Sleep(5);
         }
 
         string GetDomain(string domain, string tld, int count)
