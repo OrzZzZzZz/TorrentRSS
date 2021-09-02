@@ -72,7 +72,7 @@ namespace TorrentRSS
             xmlDocument.Save(file);
         }
 
-        static async Task AddXML(string s, string m, string u, string board)
+        static void AddXML(string s, string m, string u, string board)
         {
             string file = "..\\..\\..\\TorrentRSS.xml";
             FileInfo fileInfo = new FileInfo(file);
@@ -101,7 +101,7 @@ namespace TorrentRSS
             url.Value = m;
             type.Value = "application/x-bittorrent";
             xmlDocument.Save(file);
-            Thread.Sleep(1);
+            Thread.Sleep(5);
         }
 
         string GetDomain(string domain, string tld, int count)
